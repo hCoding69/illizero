@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react';
+import {  useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
+const navigate = useNavigate();
+useEffect(() => {
+  const storedToken = localStorage.getItem('token');
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    setToken(storedToken);
-  }, []);
+  // Si null, vide ou "undefined"/"null", on redirige
+  if (!storedToken || storedToken === 'undefined' || storedToken === 'null') {
+    navigate('/login');
+    return;
+  }
+
+  setToken(storedToken);
+}, []);
+
 
   return (
     <div className="p-4">

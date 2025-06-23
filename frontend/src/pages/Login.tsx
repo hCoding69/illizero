@@ -31,6 +31,8 @@ const getCompanyFromSubdomain = (): string => {
   });
 
   const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
+const [generalError, setGeneralError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
 
   const handleChange = (field: keyof LoginCredentials, value: string) => {
@@ -46,14 +48,28 @@ const getCompanyFromSubdomain = (): string => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', res.data.user); // stocke le nom de la compagnie
       navigate('/');
-    } catch (err) {
-        console.error(err);
-      const error = err as AxiosError<{ errors?: Partial<LoginCredentials> }>;
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors);
-      } else {
-        alert('Erreur de connexion');
-      }
+    }  catch (err) {
+  console.error(err);
+  const error = err as AxiosError<{ errors?: Partial<LoginCredentials>, message?: string }>;
+
+  if (error.response) {
+    if (error.response.status === 401) {
+      // Cas identifiants incorrects
+      setGeneralError('Identifiants invalides. Veuillez vérifier votre email et mot de passe.');
+    } else if (error.response.data?.errors) {
+      // Validation formulaire
+      setErrors(error.response.data.errors);
+    } else if (error.response.data?.message) {
+      // Message générique renvoyé par l'API
+      setGeneralError(error.response.data.message);
+    } else {
+      setGeneralError('Une erreur est survenue lors de la connexion. Veuillez réessayer plus tard.');
+    }
+  } else {
+    setGeneralError('Impossible de se connecter au serveur. Veuillez vérifier votre connexion.');
+
+}
+
     } finally {
       setLoading(false);
     }
@@ -71,9 +87,15 @@ const getCompanyFromSubdomain = (): string => {
           </div>
           <h1 className="login-title">Connexion</h1>
           <p className="login-description">Accédez à votre espace de notes</p>
+                    {generalError && (
+  <div className="error-message" style={{ marginTop: '1rem', textAlign: 'center' }}>
+    {generalError}
+  </div>
+)}
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
+          
           <div className="form-group">
             <label htmlFor="company" className="form-label">
               Nom de la compagnie
@@ -158,6 +180,7 @@ const getCompanyFromSubdomain = (): string => {
               'Se connecter'
             )}
           </button>
+
           <p style={{  textAlign: 'center', fontSize: '14px' }}>
             Pas encore de compte ?{' '}
             <Link to="/register" className="register-link">
