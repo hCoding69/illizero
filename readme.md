@@ -5,6 +5,9 @@
 - **PHP** : version **8.1**
 - **Laravel Serveur** : http://localhost:8000
 - **React Serveur (Vite)** : http://localhost:5173
+- 
+🎬 **Vidéo de démonstration privée** :  
+[Regarder la démo sur YouTube](https://youtu.be/HHRV-RZGcQ0)
 
 > Merci de s'assurer que ces versions installées pour que le projet fonctionne correctement.
 
