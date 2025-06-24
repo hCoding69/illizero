@@ -58,7 +58,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ initialData, onSave, onCancel }) =>
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
           placeholder="Titre de votre note..."
-          className="form-input"
+          className="mpmp"
         />
         {errors.title && <div className="error-message">{errors.title}</div>}
       </div>
@@ -73,7 +73,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ initialData, onSave, onCancel }) =>
           onChange={(e) => handleChange("content", e.target.value)}
           placeholder="Écrivez votre note ici..."
           rows={6}
-          className="form-textarea"
+          className="mpmp"
         />
         {errors.content && <div className="error-message">{errors.content}</div>}
       </div>

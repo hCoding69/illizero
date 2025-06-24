@@ -1,24 +1,20 @@
 import { useState } from 'react';
 import api from '../api/axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import type { LoginCredentials } from '../types/auth';
 import './Login.css';
 import type { AxiosError } from 'axios';
 
 export default function Login() {
-  const navigate = useNavigate();
 
-  // Fonction pour extraire le sous-domaine
 const getCompanyFromSubdomain = (): string => {
-  const host = window.location.hostname; // ex: neoinge.localhost
+  const host = window.location.hostname; 
   const parts = host.split('.');
   
   if (parts.length === 1) {
-    // juste "localhost" par exemple, pas de sous-domaine
     return '';
   }
   
-  // cas normal : tenant1.localhost ou tenant1.example.com
   return parts[0];
 };
 
@@ -27,7 +23,7 @@ const getCompanyFromSubdomain = (): string => {
   const [formData, setFormData] = useState<LoginCredentials>({
     email: '',
     password: '',
-    company: companyFromUrl || '', // si sous-domaine, on le met ici
+    company: companyFromUrl || '', 
   });
 
   const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
@@ -46,21 +42,19 @@ const [generalError, setGeneralError] = useState<string | null>(null);
     try {
       const res = await api.post('/login', formData);
       localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', res.data.user); // stocke le nom de la compagnie
-      navigate('/');
+      localStorage.setItem('name', res.data.name); 
+      localStorage.setItem('tenant', res.data.tenant_id); 
+window.location.href = res.data.redirect_to;
     }  catch (err) {
   console.error(err);
   const error = err as AxiosError<{ errors?: Partial<LoginCredentials>, message?: string }>;
 
   if (error.response) {
     if (error.response.status === 401) {
-      // Cas identifiants incorrects
       setGeneralError('Identifiants invalides. Veuillez vérifier votre email et mot de passe.');
     } else if (error.response.data?.errors) {
-      // Validation formulaire
       setErrors(error.response.data.errors);
     } else if (error.response.data?.message) {
-      // Message générique renvoyé par l'API
       setGeneralError(error.response.data.message);
     } else {
       setGeneralError('Une erreur est survenue lors de la connexion. Veuillez réessayer plus tard.');
@@ -110,9 +104,8 @@ const [generalError, setGeneralError] = useState<string | null>(null);
                 xmlns="http://www.w3.org/2000/svg"
                 fill="#000000"
               >
-                {/* icône SVG */}
                 <path d="M434.9 133h266v298c-154.2 29-270.3 156.7-270.3 309.9 0 77.3 29.6 148.1 78.7 203H403v-779c0-17.6 14.3-31.9 31.9-31.9zM338.1 932.1H203V396.2c0-14.3 11.6-26 26-26h109.1v561.9zM825 314v112.5c-16.5-2.8-43.3-4.2-60.5-4.2-11.7 0-23.3 0.7-34.7 2V314H825z" fill="#CCCCCC" />
-                {/* ... autres paths */}
+
               </svg>
               <input
                 id="company"
@@ -121,7 +114,7 @@ const [generalError, setGeneralError] = useState<string | null>(null);
                 value={formData.company}
                 onChange={(e) => handleChange('company', e.target.value)}
                 className="form-input"
-                disabled={!!companyFromUrl} // disable si company vient du sous-domaine
+                disabled={!!companyFromUrl} 
               />
             </div>
             {errors.company && <div className="error-message">{errors.company}</div>}

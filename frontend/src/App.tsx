@@ -6,8 +6,6 @@ function App() {
 const navigate = useNavigate();
 useEffect(() => {
   const storedToken = localStorage.getItem('token');
-
-  // Si null, vide ou "undefined"/"null", on redirige
   if (!storedToken || storedToken === 'undefined' || storedToken === 'null') {
     navigate('/login');
     return;
@@ -20,7 +18,7 @@ useEffect(() => {
   return (
     <div className="p-4">
       {token ? (
-        <h1>Connecté avec token : {token}</h1>
+        <h1>Connecté</h1>
       ) : (
         <h1>Non connecté</h1>
       )}

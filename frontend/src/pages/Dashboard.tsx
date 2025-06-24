@@ -1,84 +1,85 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import NoteForm from "./NoteForm"
-import NoteList from "./NoteList"
-import "./Dashboard.css"
+import { useEffect, useState } from "react";
+import NoteForm from "./NoteForm";
+import NoteList from "./NoteList";
+import "./Dashboard.css";
+import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 interface Note {
-  id: string
-  title: string
-  content: string
-  createdAt: string
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
 }
-
-interface DashboardProps {
-  user: { email: string; tenant: string }
-  onLogout: () => void
-}
-
-// Données mockées
-const mockNotes: Note[] = [
-  {
-    id: "1",
-    title: "Réunion équipe",
-    content: "Points à aborder lors de la prochaine réunion d'équipe : budget, planning, nouvelles fonctionnalités...",
-    createdAt: "2024-01-15T10:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Idées projet",
-    content:
-      "Nouvelles fonctionnalités à développer pour l'application : système de notifications, mode sombre, export PDF...",
-    createdAt: "2024-01-14T15:30:00Z",
-  },
-  {
-    id: "3",
-    title: "Liste courses",
-    content: "Ne pas oublier : pain, lait, œufs, fromage, légumes pour la semaine...",
-    createdAt: "2024-01-13T09:15:00Z",
-  },
-]
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState<Note[]>(mockNotes)
-  const [showForm, setShowForm] = useState(false)
-  const [editingNote, setEditingNote] = useState<Note | null>(null)
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
+const navigate = useNavigate()
+useEffect(() => {
+  api.get("/notes")
+    .then((res) => {
+      console.log("Réponse API :", res.data);
+      setNotes(res.data.notes || []); 
+    })
+    .catch((err) => console.error("Erreur lors du chargement des notes :", err))
+    .finally(() => setLoading(false));
+}, []);
 
-  const handleSaveNote = (noteData: { title: string; content: string }) => {
+const handleLogout = () => {
+  localStorage.removeItem("token"); 
+  navigate("/login"); 
+};
+
+const handleSaveNote = async (noteData: { title: string; content: string }) => {
+  try {
     if (editingNote) {
-      setNotes(notes.map((note) => (note.id === editingNote.id ? { ...note, ...noteData } : note)))
+      const res = await api.put(`/notes/${editingNote.id}`, noteData);
+      const updatedNote = res.data.note || res.data;
+      setNotes(prevNotes =>
+        prevNotes.map(note =>
+          note.id === editingNote.id ? updatedNote : note
+        )
+      );
     } else {
-      const newNote: Note = {
-        id: Date.now().toString(),
-        ...noteData,
-        createdAt: new Date().toISOString(),
-      }
-      setNotes([newNote, ...notes])
+
+      const res = await api.post("/notes", noteData);
+      const newNote = res.data.note || res.data;
+      setNotes(prevNotes => [newNote, ...prevNotes]);
     }
 
-    setShowForm(false)
-    setEditingNote(null)
+    setEditingNote(null);
+    setShowForm(false);
+  } catch (err) {
+    console.error("Erreur lors de l'enregistrement :", err);
   }
+};
+
+
+
+const handleDeleteNote = async (id: string) => {
+  try {
+    await api.delete(`/notes/${id}`);
+    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+  } catch (err) {
+    console.error("Erreur lors de la suppression :", err);
+  }
+};
 
   const handleEditNote = (note: Note) => {
-    setEditingNote(note)
-    setShowForm(true)
-  }
-
-  const handleDeleteNote = (noteId: string) => {
-    setNotes(notes.filter((note) => note.id !== noteId))
-  }
+    setEditingNote(note);
+    setShowForm(true);
+  };
 
   const handleCancelForm = () => {
-    setShowForm(false)
-    setEditingNote(null)
-  }
+    setEditingNote(null);
+    setShowForm(false);
+  };
 
   return (
     <div className="dashboard">
-      {/* Header */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-left">
@@ -93,7 +94,7 @@ const Dashboard = () => {
             </div>
             <div>
               <h1 className="app-title">Notes App</h1>
-              <p className="app-subtitle">user.tenant</p>
+              <p className="app-subtitle">{localStorage.getItem("tenant")}</p>
             </div>
           </div>
 
@@ -103,9 +104,13 @@ const Dashboard = () => {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <span>user.email</span>
+              <span>{localStorage.getItem("name")}</span>
             </div>
-            <button  className="logout-button">
+
+               <button className="logout-button" onClick={() => navigate('/adduser')}>
+        + Ajouter utilisateur
+      </button>
+                        <button className="logout-button" onClick={handleLogout}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16,17 21,12 16,7" />
@@ -117,7 +122,6 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="dashboard-main">
         {showForm ? (
           <div className="form-card">
@@ -127,7 +131,11 @@ const Dashboard = () => {
                 {editingNote ? "Modifiez votre note existante" : "Créez une nouvelle note"}
               </p>
             </div>
-            <NoteForm initialData={editingNote} onSave={handleSaveNote} onCancel={handleCancelForm} />
+            <NoteForm
+              initialData={editingNote}
+              onSave={handleSaveNote}
+              onCancel={handleCancelForm}
+            />
           </div>
         ) : (
           <div className="new-note-section">
@@ -144,7 +152,7 @@ const Dashboard = () => {
         <NoteList notes={notes} onEdit={handleEditNote} onDelete={handleDeleteNote} />
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

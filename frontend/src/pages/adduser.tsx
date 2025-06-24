@@ -2,7 +2,6 @@ import { useState } from 'react';
 import './Login.css';
 import type { AxiosError } from 'axios';
 import api from '../api/axios';
-import { useNavigate } from 'react-router-dom';
 
 interface RegisterFormData {
   name: string;
@@ -21,7 +20,6 @@ export default function AddUser() {
 
   const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
   const [loading, setLoading] = useState(false);
-const navigate = useNavigate();
   const handleChange = (field: keyof RegisterFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
     setErrors({ ...errors, [field]: undefined });
@@ -33,9 +31,9 @@ const navigate = useNavigate();
 
     try {
        const res = await api.post('/adduser', formData);
-       console.log(res.data);
-       localStorage.setItem('token', res.data.token);
-       navigate('/'); // Rediriger vers la page d'accueil ou une autre page après l'inscription réussie
+        localStorage.setItem('token', res.data.token);
+localStorage.setItem('name', res.data.name); 
+      localStorage.setItem('tenant', res.data.tenant_id);window.location.href = res.data.redirect_to;
     } catch (err) {
         console.log(err);
       const error = err as AxiosError<{ errors?: Partial<RegisterFormData> }>;
@@ -59,9 +57,9 @@ const navigate = useNavigate();
               alt="Logo Illizeo"
             />
           </div>
-          <h1 className="login-title">Créer une entreprise</h1>
+          <h1 className="login-title">Ajouter utilisateur à votre entreprise</h1>
           <p className="login-description">
-            Inscrivez-vous pour créer votre compagnie et un compte admin
+            Remplissez le formulaire pour ajouter un utilisateur à votre entreprise
           </p>
         </div>
 

@@ -32,7 +32,9 @@ class TenantAuthController extends Controller
         return response()->json([
             'message' => 'Utilisateur enregistré avec succès.',
             'token'   => $token,
-            'user'    => $user->only('name', 'email'),
+            'name'    => $user->name,
+                        "tenant_id" => tenant()->id,
+
         ], 201);
     }
 
@@ -70,7 +72,10 @@ class TenantAuthController extends Controller
         return response()->json([
             'message' => 'Connexion réussie.',
             'token'   => $token,
-            'user'    => $user->only('name', 'email'),
+            'name'    => $user->name,
+            'redirect_to' => 'http://' . tenant()->id . '.localhost:5173/',
+            "tenant_id" => tenant()->id,
+
         ]);
     }
 

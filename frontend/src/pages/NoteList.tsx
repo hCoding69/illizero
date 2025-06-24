@@ -1,54 +1,47 @@
-"use client"
-
-import type React from "react"
-import {  useEffect, useState } from 'react';
+import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+
 interface Note {
-  id: string
-  title: string
-  content: string
-  createdAt: string
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
 }
 
 interface NoteListProps {
-  notes: Note[]
-  onEdit: (note: Note) => void
-  onDelete: (noteId: string) => void
+  notes: Note[];
+  onEdit: (note: Note) => void;
+  onDelete: (noteId: string) => void;
 }
 
 const formatDate = (dateString: string) => {
-    const [token, setToken] = useState<string | null>(null);
-const navigate = useNavigate();
-useEffect(() => {
-  const storedToken = localStorage.getItem('token');
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  // Si null, vide ou "undefined"/"null", on redirige
-  if (!storedToken || storedToken === 'undefined' || storedToken === 'null') {
-    navigate('/login');
-    return;
-  }
-
-  setToken(storedToken);
-}, []);
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffTime = Math.abs(now.getTime() - date.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 1) return "Aujourd'hui"
-  if (diffDays === 2) return "Hier"
-  if (diffDays <= 7) return `Il y a ${diffDays - 1} jours`
+  if (diffDays === 1) return "Aujourd'hui";
+  if (diffDays === 2) return "Hier";
+  if (diffDays <= 7) return `Il y a ${diffDays - 1} jours`;
 
   return date.toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  })
-}
+  });
+};
 
 const NoteList: React.FC<NoteListProps> = ({ notes, onEdit, onDelete }) => {
-  if (notes.length === 0) {
-    return (
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken || storedToken === 'undefined' || storedToken === 'null') {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+if (!notes || notes.length === 0) {    return (
       <div className="empty-state">
         <div className="empty-icon">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
@@ -61,9 +54,8 @@ const NoteList: React.FC<NoteListProps> = ({ notes, onEdit, onDelete }) => {
         <h3 className="empty-title">Aucune note trouvée</h3>
         <p className="empty-description">Commencez par créer votre première note !</p>
       </div>
-    )
-  }
-
+    );
+  } else {
   return (
     <div className="notes-grid">
       {notes.map((note) => (
@@ -77,7 +69,7 @@ const NoteList: React.FC<NoteListProps> = ({ notes, onEdit, onDelete }) => {
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
-              {formatDate(note.createdAt)}
+              {formatDate(note.created_at)}
             </div>
           </div>
 
@@ -104,7 +96,10 @@ const NoteList: React.FC<NoteListProps> = ({ notes, onEdit, onDelete }) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+  }
 
-export default NoteList
+
+};
+
+export default NoteList;

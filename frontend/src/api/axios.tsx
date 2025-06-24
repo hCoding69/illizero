@@ -8,12 +8,17 @@ const baseURL = subdomain
   ? `http://${subdomain}.localhost:8000` // pas de /api ici
   : 'http://localhost:8000/api'; // dans central app, tu peux avoir /api
 console.log('Base URL:', baseURL);
+
+// Récupérer le token stocké dans localStorage
+const token = localStorage.getItem('token');
+
 const api = axios.create({
   baseURL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   },
 });
 
