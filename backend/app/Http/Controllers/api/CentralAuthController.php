@@ -15,17 +15,12 @@ public function registerCompany(Request $request)
             'company' => 'required|alpha_dash|unique:tenants,id',
         ]);
 
-        // 1. créer le tenant
         $tenant = Tenant::create(['id' => $data['company']]);
 
-        // 2. créer la base physique ↓
-
-        // 3. associer le domaine
         $tenant->domains()->create([
             'domain' => "{$data['company']}.localhost",
         ]);
 
-        // 4. lancer les migrations dans la nouvelle base
         Artisan::call('tenants:migrate', [
             '--tenants' => [$tenant->id],
             '--force'   => true,
