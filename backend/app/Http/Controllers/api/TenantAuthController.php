@@ -34,6 +34,8 @@ class TenantAuthController extends Controller
             'token'   => $token,
             'name'    => $user->name,
                         "tenant_id" => tenant()->id,
+                                    'redirect_to' => 'http://' . tenant()->id . '.localhost:5173/',
+
 
         ], 201);
     }
