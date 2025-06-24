@@ -5,15 +5,14 @@
 - **PHP** : version **8.1**
 - **Laravel Serveur** : http://localhost:8000
 - **React Serveur (Vite)** : http://localhost:5173
-- 
-🎬 **Vidéo de démonstration privée** :  
-[Regarder la démo sur YouTube](https://youtu.be/HHRV-RZGcQ0)
-
 > Merci de s'assurer que ces versions installées pour que le projet fonctionne correctement.
 
 ---
-
+🎬 **Vidéo de démonstration privée** :  
+[Regarder la démo sur YouTube](https://youtu.be/HHRV-RZGcQ0)
 # 📝 Notes App – Plateforme de Prise de Notes Multi-Entreprise
+
+
 
 Ce projet est une application web **fullstack** développée dans le cadre d’un test technique.  
 Il permet aux utilisateurs de **créer, modifier et supprimer des notes**, avec une séparation par entreprise via une architecture **multi-tenant**.
